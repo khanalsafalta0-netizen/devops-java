@@ -80,7 +80,7 @@ pipeline {
                         sudo systemctl restart calculator.service
                         echo '✅ Deployment completed and service restarted'
                         echo 'Service Status:'
-                        sudo systemctl status my-java-app.service --no-pager -l
+                        sudo systemctl status calculator.service --no-pager -l
                     "
                 """
                 }
