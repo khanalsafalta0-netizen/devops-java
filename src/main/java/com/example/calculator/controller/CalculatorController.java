@@ -86,6 +86,7 @@ public class CalculatorController {
         Map<String, String> response = new HashMap<>();
         response.put("status", "UP");
         response.put("service", "Calculator API");
+        response.put("version","1.0.0");
         return ResponseEntity.ok(response);
     }
 
