@@ -51,7 +51,7 @@ pipeline {
                     }
                     post {
                         always {
-                            ech 'Updating third party dependencies report'
+                            echo 'Updating third party dependencies report'
                         }
                     }
                 }
