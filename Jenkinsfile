@@ -42,10 +42,12 @@ pipeline {
                     steps {
                         echo 'Scanning third-party dependencies'
                         sh 'sleep 30'
+                        dependencyCheck additionalArguments: '--scan "./" --format "ALL"', odcInstallation: 'OWASP-SCA'
                     }
                     post {
                         always {
                             echo 'Updating third party dependencies report'
+                            dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
                         }
                     }
                 }
@@ -83,6 +85,9 @@ pipeline {
         }
 
         stage('Approval'){
+            options{
+                timeout(time: 3, unit: 'MINUTES') 
+            }
             steps {
                 input message: 'Approve deloyment to Production?', ok: 'Deploy'
             }
