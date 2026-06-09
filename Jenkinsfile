@@ -11,7 +11,7 @@ pipeline {
         JAR_NAME = "calculator-1.0.0.jar"
         APP_SERVER = "32.192.209.15"
         IMAGE_REPO = "prengineering"
-        IMAGE_TAG = "latest"
+        IMAGE_TAG = ${GIT_COMMIT}
     }
 
     stages {
@@ -128,7 +128,7 @@ pipeline {
                 )]) {
                     sh """
                         echo "copying new jar to the server ${APP_SERVER}"
-                        scp -i \$SSH_KEY -o StrictHostKeyChecking=no build/libs/${JAR_NAME} ubuntu@${APP_SERVER}:~/calculator.jar.new
+                        scp -i $SSH_KEY -o StrictHostKeyChecking=no build/libs/${JAR_NAME} ubuntu@${APP_SERVER}:~/calculator.jar.new
                         echo "replacing the old jar and restarting the service..."
                         ssh -i $SSH_KEY -o StrictHostKeyChecking=no ubuntu@${APP_SERVER} "
                         if [ -f calculator.jar ]; then
@@ -146,6 +146,32 @@ pipeline {
                 }
                 }
                 echo 'Deployment successful (placeholder).'
+            }
+        }
+        stage('Docker Image Approval'){
+            options{
+                timeout(time: 3, unit: 'MINUTES') 
+            }
+            steps {
+                input message: 'Approve deloyment to Production?', ok: 'Deploy docker'
+            }
+        }
+        stage('Deploy docker'){
+            steps {
+                script {
+                withCredentials([sshUserPrivateKey(
+                    credentialsId: 'app-server-ssh',     // ← Your credential ID
+                    keyFileVariable: 'SSH_KEY'
+                )])    {
+                sh """
+                echo "deploying docker container"
+                ssh -i $SSH_KEY -o StrictHostKeyChecking=no ubuntu@${APP_SERVER} "
+                    sh "docker pull  ${IMAGE_REPO}/calculator-app:${IMAGE_TAG}"
+                    sh "docker run -d -p 8090:8080 ${IMAGE_REPO}/calculator-app:${IMAGE_TAG}"
+                "
+                """
+                }
+            }
             }
         }
     }
