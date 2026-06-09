@@ -126,11 +126,11 @@ pipeline {
                     credentialsId: 'app-server-ssh',     // ← Your credential ID
                     keyFileVariable: 'SSH_KEY'
                 )]) {
-                    sh """
+                    sh '''
                         echo "copying new jar to the server ${APP_SERVER}"
-                        scp -i $SSH_KEY -o StrictHostKeyChecking=no build/libs/${JAR_NAME} ubuntu@${APP_SERVER}:~/calculator.jar.new
+                        scp -i "$SSH_KEY" -o StrictHostKeyChecking=no build/libs/"${JAR_NAME}" ubuntu@"${APP_SERVER}":~/calculator.jar.new
                         echo "replacing the old jar and restarting the service..."
-                        ssh -i $SSH_KEY -o StrictHostKeyChecking=no ubuntu@${APP_SERVER} "
+                        ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no ubuntu@"${APP_SERVER}" "
                         if [ -f calculator.jar ]; then
                             cp calculator.jar calculator.jar.bak
                         fi
