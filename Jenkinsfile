@@ -163,14 +163,14 @@ pipeline {
                     credentialsId: 'app-server-ssh',     // ← Your credential ID
                     keyFileVariable: 'SSH_KEY'
                 )])    {
-                sh """
+                sh '''
                 echo "deploying docker container"
-                ssh -i $SSH_KEY -o StrictHostKeyChecking=no ubuntu@${APP_SERVER} "
-                    docker pull  ${IMAGE_REPO}/calculator-app:${IMAGE_TAG}
+                ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no ubuntu@$"{APP_SERVER}" "
+                    docker pull  "${IMAGE_REPO}"/calculator-app:"${IMAGE_TAG}"
                     docker rm -f calculator || true
-                    docker run -d -p 8090:8080 --name calculator ${IMAGE_REPO}/calculator-app:${IMAGE_TAG} 
+                    docker run -d -p 8090:8080 --name calculator "${IMAGE_REPO}"/calculator-app:"${IMAGE_TAG}" 
                 "
-                """
+                '''
                 }
             }
             }
