@@ -11,7 +11,7 @@ pipeline {
         JAR_NAME = "calculator-1.0.0.jar"
         APP_SERVER = "32.192.209.15"
         IMAGE_REPO = "prengineering"
-        IMAGE_TAG = ${GIT_COMMIT}
+        IMAGE_TAG = "${GIT_COMMIT}"
     }
 
     stages {
