@@ -10,7 +10,7 @@ pipeline {
         APP_NAME = 'calculator'
         JAR_NAME = "calculator-1.0.0.jar"
         APP_SERVER = "32.192.209.15"
-        IMAGE_REPO = "383420348095.dkr.ecr.us-east-1.amazonaws.com/devops"
+        IMAGE_REPO = "prengineering"
         IMAGE_TAG = "latest"
     }
 
@@ -82,6 +82,17 @@ pipeline {
             post {
                 success {
                     archiveArtifacts artifacts: 'build/libs/*.jar', fingerprint: true
+                }
+            }
+        }
+
+        stage('Login to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker-login', 
+                                                  usernameVariable: 'USERNAME', 
+                                                  passwordVariable: 'PASSWORD')]) {
+                    sh 'echo $PASSWORD | docker login -u $USERNAME --password-stdin'
+                    echo 'Logged in successfully'
                 }
             }
         }
