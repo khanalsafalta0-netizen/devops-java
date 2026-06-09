@@ -87,7 +87,7 @@ public class CalculatorController {
         response.put("status", "UP");
         response.put("service", "Calculator API");
         response.put("version","1.0.0");
-        resposne.put("developer","roshankhatri");
+        response.put("developer","roshankhatri");
         return ResponseEntity.ok(response);
     }
 
