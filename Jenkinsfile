@@ -142,7 +142,7 @@ pipeline {
                         echo 'Service Status:'
                         sudo systemctl status calculator.service --no-pager -l
                     "
-                """
+                '''
                 }
                 }
                 echo 'Deployment successful (placeholder).'
