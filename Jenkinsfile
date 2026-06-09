@@ -10,6 +10,7 @@ pipeline {
         APP_NAME = 'calculator'
         JAR_NAME = "calculator-1.0.0.jar"
         APP_SERVER = "32.192.209.15"
+        IMAGE_TAG = "latest"
     }
 
     stages {
@@ -87,6 +88,7 @@ pipeline {
         stage('Docker build'){
             steps {
                 echo "building docker image"
+                sh "docker build -t calculator-app:${IMAGE_TAG}"
             }
         }
 
