@@ -43,7 +43,7 @@ pipeline {
                 stage('OWASP Dependency check'){
                     steps {
                         echo 'Scanning third-party dependencies'
-                        sh 'sleep 30'
+                        sh 'sleep 10'
                         // dependencyCheck additionalArguments: '--scan "./" --format "ALL"', odcInstallation: 'OWASP-SCA'
                     }
                     post {
@@ -56,7 +56,7 @@ pipeline {
                 stage('SonarQube Analysis'){
                     steps {
                         echo 'analyzing code quality'
-                        sh 'sleep 90'
+                        sh 'sleep 20'
                     }
                 }
             }
@@ -67,7 +67,7 @@ pipeline {
                 timeout(time: 5, unit: 'MINUTES') {
                     script{
                         sh """
-                            sleep 30
+                            sleep 20
                         """
                     }
                 }
