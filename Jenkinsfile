@@ -89,7 +89,7 @@ pipeline {
         stage('Docker build'){
             steps {
                 echo "building docker image"
-                sh "docker build -t ${IMAGE_REPO}/calculator-app:${IMAGE_TAG}"
+                sh "docker build -t ${IMAGE_REPO}/calculator-app:${IMAGE_TAG} ."
                 sh "docker push ${IMAGE_REPO}/calculator-app:${IMAGE_TAG}"
             }
         }
