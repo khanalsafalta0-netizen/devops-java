@@ -10,6 +10,7 @@ pipeline {
         APP_NAME = 'calculator'
         JAR_NAME = "calculator-1.0.0.jar"
         APP_SERVER = "32.192.209.15"
+        IMAGE_REPO = "383420348095.dkr.ecr.us-east-1.amazonaws.com/devops"
         IMAGE_TAG = "latest"
     }
 
@@ -88,7 +89,8 @@ pipeline {
         stage('Docker build'){
             steps {
                 echo "building docker image"
-                sh "docker build -t calculator-app:${IMAGE_TAG}"
+                sh "docker build -t ${IMAGE_REPO}/calculator-app:${IMAGE_TAG}"
+                sh "docker push ${IMAGE_REPO}/calculator-app:${IMAGE_TAG}"
             }
         }
 
