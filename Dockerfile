@@ -5,7 +5,7 @@ FROM openjdk:17-ea-alpine
 WORKDIR /app
 
 # Step 3: Copy the Spring Boot JAR file into the container
-COPY target/calculator-1.0.0.jar /app/calculator-1.0.0.jar
+COPY build/libs/calculator-1.0.0.jar /app/calculator-1.0.0.jar
 
 # Step 4: Expose the port your application runs on
 EXPOSE 8080
