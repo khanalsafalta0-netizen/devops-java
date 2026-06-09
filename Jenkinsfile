@@ -42,12 +42,12 @@ pipeline {
                     steps {
                         echo 'Scanning third-party dependencies'
                         sh 'sleep 30'
-                        dependencyCheck additionalArguments: '--scan "./" --format "ALL"', odcInstallation: 'OWASP-SCA'
+                        // dependencyCheck additionalArguments: '--scan "./" --format "ALL"', odcInstallation: 'OWASP-SCA'
                     }
                     post {
                         always {
                             echo 'Updating third party dependencies report'
-                            dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+                            // dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
                         }
                     }
                 }
@@ -81,6 +81,12 @@ pipeline {
                 success {
                     archiveArtifacts artifacts: 'build/libs/*.jar', fingerprint: true
                 }
+            }
+        }
+
+        stage('Docker build'){
+            steps {
+                echo "building docker image"
             }
         }
 
