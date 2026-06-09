@@ -166,9 +166,9 @@ pipeline {
                 sh """
                 echo "deploying docker container"
                 ssh -i $SSH_KEY -o StrictHostKeyChecking=no ubuntu@${APP_SERVER} "
-                    docker pull  ${IMAGE_REPO}/calculator-app:${IMAGE_TAG} --name calculator
+                    docker pull  ${IMAGE_REPO}/calculator-app:${IMAGE_TAG}
                     docker rm -f calculator || true
-                    docker run -d -p 8090:8080 ${IMAGE_REPO}/calculator-app:${IMAGE_TAG}
+                    docker run -d -p 8090:8080 ${IMAGE_REPO}/calculator-app:${IMAGE_TAG} --name calculator
                 "
                 """
                 }
