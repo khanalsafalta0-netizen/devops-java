@@ -167,10 +167,7 @@ pipeline {
                 echo "deploying docker container"
                 ssh -i $SSH_KEY -o StrictHostKeyChecking=no ubuntu@${APP_SERVER} "
                     docker pull  ${IMAGE_REPO}/calculator-app:${IMAGE_TAG} --name calculator
-                    if [ \$(docker ps -a -q -f name=^calculator\$) ]; then
-                        echo "Found existing calculator container. Stopping and removing..."
-                        docker rm -f calculator
-                    fi
+                    docker rm -f calculator || true
                     docker run -d -p 8090:8080 ${IMAGE_REPO}/calculator-app:${IMAGE_TAG}
                 "
                 """
