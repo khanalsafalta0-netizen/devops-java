@@ -9,7 +9,7 @@ pipeline {
     environment {
         APP_NAME = 'calculator'
         JAR_NAME = "calculator-1.0.0.jar"
-        APP_SERVER = "54.196.71.94"
+        APP_SERVER = "10.0.1.182"
         IMAGE_REPO = "prengineering"
         IMAGE_TAG = "0.0.${BUILD_NUMBER}"
     }
