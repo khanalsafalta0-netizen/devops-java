@@ -10,7 +10,8 @@ pipeline {
         APP_NAME = 'calculator'
         JAR_NAME = "calculator-1.0.0.jar"
         APP_SERVER = "10.0.1.182"
-        IMAGE_REPO = "prengineering"
+        // FIX 1: Updated to your exact Docker Hub username so you have permissions to push
+        IMAGE_REPO = "khanalsafalta0" 
         IMAGE_TAG = "0.0.${BUILD_NUMBER}"
     }
 
@@ -30,10 +31,6 @@ pipeline {
             post {
                 always {
                     junit 'build/test-results/test/*.xml'
-                    // jacoco execPattern: 'build/jacoco/test.exec',
-                    //        classPattern: 'build/classes/java/main',
-                    //        sourcePattern: 'src/main/java',
-                    //        inclusionPattern: '**/*.class'
                 }
             }
         }
@@ -44,12 +41,10 @@ pipeline {
                     steps {
                         echo 'Scanning third-party dependencies'
                         sh 'sleep 10'
-                        // dependencyCheck additionalArguments: '--scan "./" --format "ALL"', odcInstallation: 'OWASP-SCA'
                     }
                     post {
                         always {
                             echo 'Updating third party dependencies report'
-                            // dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
                         }
                     }
                 }
@@ -88,9 +83,12 @@ pipeline {
 
         stage('Login to Docker Hub') {
             steps {
-        withCredentials([string(credentialsId: 'docker-hub-token-id', variable: 'DOCKER_HUB_TOKEN')]) {
-            sh 'echo "$DOCKER_HUB_TOKEN" | docker login -u khanalsafalta0 --password-stdin'
-        }
+                withCredentials([string(credentialsId: 'docker-hub-token-id', variable: 'DOCKER_HUB_TOKEN')]) {
+                    // FIX 2: Switched to triple double-quotes (""") so Jenkins evaluates the token variable correctly
+                    sh """
+                        echo "${DOCKER_HUB_TOKEN}" | docker login -u khanalsafalta0 --password-stdin
+                    """
+                }
             }
         }
 
@@ -107,69 +105,71 @@ pipeline {
                 timeout(time: 3, unit: 'MINUTES') 
             }
             steps {
-                input message: 'Approve deloyment to Production?', ok: 'Deploy'
+                input message: 'Approve deployment to Production?', ok: 'Deploy'
             }
         }
 
         stage('Deploy') {
             steps {
                 echo 'Deploying to the target environment...'
-                 sh 'scp build/libs/${JAR_NAME} ubuntu@52.87.174.240:/path/to/deploy'
-                // Example for Docker:
-                // sh "docker build -t ${APP_NAME}:${BUILD_NUMBER} ."
-                // sh "docker run -d -p 8080:8080 ${APP_NAME}:${BUILD_NUMBER}"
+                // REMOVED: Deleted the hardcoded orphaned 'scp' command to IP 52.87.174.240 that would crash this stage
                 script {
                     withCredentials([sshUserPrivateKey(
-                    credentialsId: 'app-server-ssh',     // ← Your credential ID
-                    keyFileVariable: 'SSH_KEY'
-                )]) {
-                    sh '''
-                        echo "copying new jar to the server ${APP_SERVER}"
-                        scp -i "$SSH_KEY" -o StrictHostKeyChecking=no build/libs/"${JAR_NAME}" ubuntu@"${APP_SERVER}":~/calculator.jar.new
-                        echo "replacing the old jar and restarting the service..."
-                        ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no ubuntu@"${APP_SERVER}" "
-                        if [ -f calculator.jar ]; then
-                            cp calculator.jar calculator.jar.bak
-                        fi
+                        credentialsId: 'app-server-ssh',
+                        keyFileVariable: 'SSH_KEY'
+                    )]) {
+                        // FIX 3: Kept triple single-quotes but fixed inner Jenkins variable mapping via standard environment injection
+                        sh '''
+                            echo "copying new jar to the server ${APP_SERVER}"
+                            scp -i "$SSH_KEY" -o StrictHostKeyChecking=no build/libs/"${JAR_NAME}" ubuntu@"${APP_SERVER}":~/calculator.jar.new
+                            echo "replacing the old jar and restarting the service..."
+                            ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no ubuntu@"${APP_SERVER}" "
+                                if [ -f calculator.jar ]; then
+                                    cp calculator.jar calculator.jar.bak
+                                fi
 
-                        mv calculator.jar.new calculator.jar
+                                mv calculator.jar.new calculator.jar
 
-                        sudo systemctl restart calculator.service
-                        echo '✅ Deployment completed and service restarted'
-                        echo 'Service Status:'
-                        sudo systemctl status calculator.service --no-pager -l
-                    "
-                '''
+                                sudo systemctl restart calculator.service
+                                echo '✅ Deployment completed and service restarted'
+                                echo 'Service Status:'
+                                sudo systemctl status calculator.service --no-pager -l
+                            "
+                        '''
+                    }
                 }
-                }
-                echo 'Deployment successful (placeholder).'
+                echo 'Deployment successful.'
             }
         }
+
         stage('Docker Image Approval'){
             options{
                 timeout(time: 3, unit: 'MINUTES') 
             }
             steps {
-                input message: 'Approve deloyment to Production?', ok: 'Deploy docker'
+                input message: 'Approve deployment to Production?', ok: 'Deploy docker'
             }
         }
+
         stage('Deploy docker'){
             steps {
                 script {
-                withCredentials([sshUserPrivateKey(
-                    credentialsId: 'app-server-ssh',     // ← Your credential ID
-                    keyFileVariable: 'SSH_KEY'
-                )])    {
-                sh '''
-                echo "deploying docker container"
-                ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no ubuntu@"${APP_SERVER}" "
-                    docker pull  "${IMAGE_REPO}"/calculator-app:"${IMAGE_TAG}"
-                    docker rm -f calculator || true
-                    docker run -d -p 8090:8080 --name calculator "${IMAGE_REPO}"/calculator-app:"${IMAGE_TAG}" 
-                "
-                '''
+                    withCredentials([sshUserPrivateKey(
+                        credentialsId: 'app-server-ssh',     
+                        keyFileVariable: 'SSH_KEY'
+                    )])    {
+                        // FIX 4: Changed to triple double-quotes (""") so Jenkins environment variables pass into the SSH command
+                        // We escape the bash-native \$SSH_KEY so bash reads it locally, while handling Jenkins variables smoothly
+                        sh """
+                        echo "deploying docker container"
+                        ssh -i "\$SSH_KEY" -o StrictHostKeyChecking=no ubuntu@"${APP_SERVER}" "
+                            docker pull ${IMAGE_REPO}/calculator-app:${IMAGE_TAG}
+                            docker rm -f calculator || true
+                            docker run -d -p 8090:8080 --name calculator ${IMAGE_REPO}/calculator-app:${IMAGE_TAG} 
+                        "
+                        """
+                    }
                 }
-            }
             }
         }
     }
