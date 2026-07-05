@@ -117,7 +117,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'Deploying to the target environment...'
-                // Example: sh 'scp build/libs/${JAR_NAME} user@server:/path/to/deploy'
+                 sh 'scp build/libs/${JAR_NAME} ubuntu@52.87.174.240:/path/to/deploy'
                 // Example for Docker:
                 // sh "docker build -t ${APP_NAME}:${BUILD_NUMBER} ."
                 // sh "docker run -d -p 8080:8080 ${APP_NAME}:${BUILD_NUMBER}"
